@@ -1,3 +1,4 @@
 [Project]
-Name=CP-Server
+CreatedFrom=CMakeLists.txt
 Manager=KDevCMakeManager
+Name=CP-Server
