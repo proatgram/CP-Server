@@ -44,6 +44,8 @@ SOFTWARE.
 
 #include <cpprest/http_listener.h>
 
+#include "magic.h"
+
 static constexpr int PORT = 5151;
 
 static const std::string POWER_ON = "PowerOn";

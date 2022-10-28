@@ -22,41 +22,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "main.h"
+#pragma once
 
-void handleGET(web::http::http_request request, MagicPacket& magic) {
-    const utility::string_t qs = request.request_uri().query();
-    auto q = web::uri::split_query(qs);
+#include <sysexits.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 
-    if (q.find(POWER_ON) != q.end()) {
-        magic.send();
-        std::cout << "Sent wake up packet." << std::endl;
-        request.reply(web::http::status_codes::OK);
-        return;
-    }
+#include <cstdlib>
+#include <cstdint>
+#include <cstdlib>
+#include <cstdio>
+#include <cerrno>
+#include <cstring>
 
-    request.reply(web::http::status_codes::NoContent);
-}
+#include <string>
+#include <iostream>
+#include <vector>
+#include <algorithm>
 
+class MagicPacket {
+    public:
+        MagicPacket(std::string macAddress, std::string interfaceDevice);
 
-int main(int argc, char **argv) {
+        MagicPacket();
 
-    if (argc < 3) {
-        std::cout << "Usage: " << argv[0] << " <mac address> <interface device>" << std::endl;
-        exit(EX_USAGE);
-    }
+        int send();
 
-    web::http::experimental::listener::http_listener listener("http://localhost:5555");
+        void setInterface(std::string interfaceDevice);
 
-    MagicPacket magic(argv[1], argv[2]);
+        void setMacAddress(std::string macAdrress);
 
-    listener.support(web::http::methods::GET, [&magic](web::http::http_request request) {handleGET(request, magic);});
+    private:
 
-    listener.open().wait();
+        void createPacket();
 
-    while (true) {
+        void initAddresses();
 
-    }
+        unsigned int* m_mac;
 
-    return EXIT_SUCCESS;
-}
+        std::string m_iface;
+
+        std::vector<unsigned char> m_packet;
+
+        int m_sfd;
+
+        sockaddr_in m_saddr;
+
+        sockaddr_in m_ssaddr;
+};
